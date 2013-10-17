@@ -37,6 +37,7 @@ JS_FILES=\
 	src/js/Rickshaw.Graph.HoverDetail.CustomDetail.js\
 	src/js/Rickshaw.Graph.JSONP.js\
 	src/js/Rickshaw.Graph.Legend.js\
+	src/js/Rickshaw.Graph.Legend.CustomLegend.js\
 	src/js/Rickshaw.Graph.RangeSlider.js\
 	src/js/Rickshaw.Graph.Renderer.js\
 	src/js/Rickshaw.Graph.Renderer.Line.js\
@@ -56,6 +57,8 @@ JS_FILES=\
 .PHONY: clean build
 
 build: rickshaw.min.css rickshaw.min.js
+
+esbuild: rickshaw.min.css rickshaw.test.js
 
 clean:
 	rm -rf rickshaw.css rickshaw.js rickshaw.min.*
@@ -87,6 +90,9 @@ rickshaw.css: $(CSS_FILES)
 rickshaw.js: $(JS_FILES) $(JS_HINT)
 	$(JS_HINT) src/js
 	cat $(JS_FILES) > rickshaw.js
+
+rickshaw.test.js: $(JS_FILES)
+	cat $(JS_FILES) > rickshaw.min.js
 
 rickshaw.min.css: $(CSS_MIN) rickshaw.css
 	$(CSS_MIN) rickshaw.css > rickshaw.min.css
