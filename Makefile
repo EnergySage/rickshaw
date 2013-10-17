@@ -34,11 +34,13 @@ JS_FILES=\
 	src/js/Rickshaw.Graph.Behavior.Series.Order.js\
 	src/js/Rickshaw.Graph.Behavior.Series.Toggle.js\
 	src/js/Rickshaw.Graph.HoverDetail.js\
+	src/js/Rickshaw.Graph.HoverDetail.CustomDetail.js\
 	src/js/Rickshaw.Graph.JSONP.js\
 	src/js/Rickshaw.Graph.Legend.js\
 	src/js/Rickshaw.Graph.RangeSlider.js\
 	src/js/Rickshaw.Graph.Renderer.js\
 	src/js/Rickshaw.Graph.Renderer.Line.js\
+	src/js/Rickshaw.Graph.Renderer.CustomLine.js\
 	src/js/Rickshaw.Graph.Renderer.Stack.js\
 	src/js/Rickshaw.Graph.Renderer.Bar.js\
 	src/js/Rickshaw.Graph.Renderer.Area.js\
