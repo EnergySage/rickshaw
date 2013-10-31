@@ -30,11 +30,24 @@ var Rickshaw = {
 
 	clone: function(obj) {
 		return JSON.parse(JSON.stringify(obj));
-	}
+	},
+
+    pmt2name: {
+        'pur': 'Purchase',
+        'pln': 'Purchase with Loan',
+        'zdl': '$0-down Lease',
+        'ppl': 'Prepaid Lease',
+        'cl': 'Custom Lease',
+        'zdp': '$0-down PPA',
+        'ppp': 'Prepaid PPA',
+        'cp': 'Custom PPA'
+    }
+
 };
 
 if (typeof module !== 'undefined' && module.exports) {
 	var d3 = require('d3');
 	module.exports = Rickshaw;
 }
+
 

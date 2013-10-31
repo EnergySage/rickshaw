@@ -3,8 +3,8 @@ Rickshaw.namespace('Rickshaw.Graph.HoverDetail.CustomDetail');
 Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDetail, {
     formatter: function(series, x, y) {
         var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-        var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-        var content = swatch + series.name + ": " + parseInt(y, 10) + '<br>' + date;
+        //var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+        var content = series.name + ": " + parseInt(y, 10) + '<br>' + date;
         return content;
     },
     update: function(e) {

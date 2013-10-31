@@ -178,6 +178,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var series = point.series;
 		var actualY = series.scale ? series.scale.invert(point.value.y) : point.value.y;
 
+
 		item.innerHTML = this.formatter(series, point.value.x, actualY, formattedXValue, formattedYValue, point);
 		item.style.top = this.graph.y(point.value.y0 + point.value.y) + 'px';
 
@@ -201,6 +202,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var alignables = [xLabel, item];
 		alignables.forEach(function(el) {
 			el.classList.add('left');
+            el.classList.add(series.name);
 		});
 
 		this.show();

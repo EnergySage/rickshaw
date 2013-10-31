@@ -17,7 +17,9 @@
 	border: 1px solid rgba(0, 0, 0, 0.2);
 }
 .rickshaw_legend .line {
+    /* Removed clear for horizontal positioning
 	clear: both;
+    */
 	line-height: 140%;
 	padding-right: 15px;
 }

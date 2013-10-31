@@ -30,13 +30,26 @@ var Rickshaw = {
 
 	clone: function(obj) {
 		return JSON.parse(JSON.stringify(obj));
-	}
+	},
+
+    pmt2name: {
+        'pur': 'Purchase',
+        'pln': 'Purchase with Loan',
+        'zdl': '$0-down Lease',
+        'ppl': 'Prepaid Lease',
+        'cl': 'Custom Lease',
+        'zdp': '$0-down PPA',
+        'ppp': 'Prepaid PPA',
+        'cp': 'Custom PPA'
+    }
+
 };
 
 if (typeof module !== 'undefined' && module.exports) {
 	var d3 = require('d3');
 	module.exports = Rickshaw;
 }
+
 
 /* Adapted from https://github.com/Jakobo/PTClass */
 
@@ -2166,6 +2179,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var series = point.series;
 		var actualY = series.scale ? series.scale.invert(point.value.y) : point.value.y;
 
+
 		item.innerHTML = this.formatter(series, point.value.x, actualY, formattedXValue, formattedYValue, point);
 		item.style.top = this.graph.y(point.value.y0 + point.value.y) + 'px';
 
@@ -2189,6 +2203,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var alignables = [xLabel, item];
 		alignables.forEach(function(el) {
 			el.classList.add('left');
+            el.classList.add(series.name);
 		});
 
 		this.show();
@@ -2245,8 +2260,8 @@ Rickshaw.namespace('Rickshaw.Graph.HoverDetail.CustomDetail');
 Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDetail, {
     formatter: function(series, x, y) {
         var date = '<span class="date">' + new Date(x * 1000).toUTCString() + '</span>';
-        var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
-        var content = swatch + series.name + ": " + parseInt(y, 10) + '<br>' + date;
+        //var swatch = '<span class="detail_swatch" style="background-color: ' + series.color + '"></span>';
+        var content = series.name + ": " + parseInt(y, 10) + '<br>' + date;
         return content;
     },
     update: function(e) {
@@ -2456,15 +2471,17 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
             line.className += ' disabled';
         }
 
+        
         var swatch = document.createElement('div');
         swatch.className = 'swatch';
         swatch.style.backgroundColor = series.color;
-
         line.appendChild(swatch);
+        
 
         var label = document.createElement('span');
         label.className = 'label';
-        label.innerHTML = series.name;
+        label.innerHTML = Rickshaw.pmt2name[series.name]; //Might want to change this
+        //label.style.backgroundColor = series.color;
 
         line.appendChild(label);
         list.appendChild(line);

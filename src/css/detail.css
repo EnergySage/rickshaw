@@ -58,7 +58,11 @@
 }
 .rickshaw_graph .detail .item.active {
 	opacity: 1;
-	background: rgba(0, 0, 0, 0.8);
+	/*
+     * Removing Background here to allow hoverdetail formatter to dictate the
+     * background color
+    background: rgba(0, 0, 0, 0.8);
+    */
 }
 .rickshaw_graph .detail .item.left:before {
 	content: "\25c2";

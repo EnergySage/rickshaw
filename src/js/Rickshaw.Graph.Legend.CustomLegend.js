@@ -28,15 +28,17 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
             line.className += ' disabled';
         }
 
+        
         var swatch = document.createElement('div');
         swatch.className = 'swatch';
         swatch.style.backgroundColor = series.color;
-
         line.appendChild(swatch);
+        
 
         var label = document.createElement('span');
         label.className = 'label';
-        label.innerHTML = series.name;
+        label.innerHTML = Rickshaw.pmt2name[series.name]; //Might want to change this
+        //label.style.backgroundColor = series.color;
 
         line.appendChild(label);
         list.appendChild(line);
