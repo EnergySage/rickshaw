@@ -7,6 +7,37 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
 
 	var self = this;
 
+    var colorSafe = {};
+	var activeLine = null;
+
+	var disabledColor = args.disabledColor || function(seriesColor) {
+		return d3.interpolateRgb(seriesColor, d3.rgb('#d8d8d8'))(0.8).toString();
+	};
+
+    this.addLegendDynamics = function(l) {
+        //l.element.classList.add('action');
+
+        l.element.onclick = function(e) {
+            if (l.series.disabled) {
+                l.series.enable();
+                l.element.classList.remove('disabled');
+                /*if (colorSafe[line.series.name]) {
+                    l.series.color = colorSafe[l.series.name];
+                }*/
+            } else {
+                if (self.graph.series.filter(function(s) { return !s.disabled }).length <= 1) return;
+                l.series.disable();
+                l.element.classList.add('disabled');
+                /*colorSafe[l.series.name] = colorSafe[l.series.name] || l.series.color;
+                l.series.color = disabledColor(l.series.color);*/
+            }
+            //this.series.disable(); //adds this.series.disabled boolean and sets it to false
+            //this.series.enable();  //sets this.series.disabled to true
+        }
+        //TODO: add functionality from
+        //Rickshaw.Graph.Behavior.Series.Highlight.js
+    }
+
 	this.addAnchor = function(line) {
 		var anchor = document.createElement('a');
 		anchor.innerHTML = '&#10004;';
@@ -23,12 +54,14 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
 				line.element.classList.add('disabled');
 			}
 
-		}.bind(this);
-		
+		}.bind(this); //Can probably remove this bind completly to get rick of label click functionality
+	            
                 var label = line.element.getElementsByTagName('span')[0];
                 label.onclick = function(e){
 
-                        var disableAllOtherLines = line.series.disabled;
+                        //var disableAllOtherLines = line.series.disabled;
+
+                        /*
                         if ( ! disableAllOtherLines ) {
                                 for ( var i = 0; i < self.legend.lines.length; i++ ) {
                                         var l = self.legend.lines[i];
@@ -42,11 +75,13 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
                                         }
                                 }
                         }
+                        */
 
                         // show all or none
                         if ( disableAllOtherLines ) {
 
                                 // these must happen first or else we try ( and probably fail ) to make a no line graph
+                                /*
                                 line.series.enable();
                                 line.element.classList.remove('disabled');
 
@@ -58,14 +93,15 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
                                                 l.element.classList.add('disabled');
                                         }
                                 });
+                                */
 
                         } else {
-
+                            /*
                                 self.legend.lines.forEach(function(l){
                                         l.series.enable();
                                         l.element.classList.remove('disabled');
                                 });
-
+                            */
                         }
 
                 };
@@ -93,7 +129,8 @@ Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
 		}
 
 		this.legend.lines.forEach( function(l) {
-			self.addAnchor(l);
+			//self.addAnchor(l);
+            self.addLegendDynamics(l);
 		} );
 	}
 
