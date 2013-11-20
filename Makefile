@@ -58,7 +58,7 @@ JS_FILES=\
 
 build: rickshaw.min.css rickshaw.min.js
 
-esbuild: rickshaw.min.css rickshaw.test.js
+dev: rickshaw.min.css rickshaw.test.js
 
 clean:
 	rm -rf rickshaw.css rickshaw.js rickshaw.min.*
