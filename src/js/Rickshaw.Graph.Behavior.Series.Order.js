@@ -16,10 +16,11 @@ Rickshaw.Graph.Behavior.Series.Order = function(args) {
 	}
 
 	$(function() {
-		$(self.legend.list).sortable( { 
+		$(self.legend.list).sortable( {
 			containment: 'parent',
 			tolerance: 'pointer',
 			update: function( event, ui ) {
+
 				var series = [];
 				$(self.legend.list).find('li').each( function(index, item) {
 					if (!item.series) return;

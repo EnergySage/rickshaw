@@ -28,6 +28,13 @@ Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDe
 
             var data = this.graph.stackedData[j++];
 
+            if (series.custom_hidden || series.name == 'baseline')
+                /*
+                 * This will remove hidden series and baseline series data points from being computed
+                 * meaning the highlight "snap-to" line functinality will ignore these series
+                 */
+                return;
+
             if (!data.length)
                 return;
 
@@ -83,7 +90,7 @@ Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDe
 
         }, this );
 
-        if (!nearestPoint || nearestPoint.name=='baseline')
+        if (!nearestPoint)
             return;
 
         nearestPoint.active = true;

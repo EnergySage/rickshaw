@@ -181,3 +181,83 @@ The above copyright notice and this permission notice shall be included in all c
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
+## EnergySage Modifications
+
+### Rickshaw lookup tables
+
+pmt2name returns the name for a given payment code, for example pmt2name['pln'] would
+return 'Purchase with Loan'.
+
+pmt2color returns the hex color associated with a given payment code, these
+colors come directly from es-site's _colors.sass file, changes to that file
+should be reflected here.
+
+### Basic Implementation
+
+```
+    var graph = new Rickshaw.Graph({
+        element: document.querySelector("#{{ chart_div_id }}"), 
+        renderer: 'multi',
+        height: 368,
+        width: 520,
+        min: '{{ min_y_value }}',
+        max: '{{ max_y_value }}',
+        strokeWidth: 3,
+        baselineStrokeWidth: 1,
+        series: data_set
+    });
+
+    var hoverDetail = new Rickshaw.Graph.CustomHoverDetail( {
+        graph: graph,
+        formatter: function(series, x, y) { // format tooltip
+            var content = 
+                    '<div style="background-color: ' + series.color + '">' +
+                    Rickshaw.pmt2name[series.name] + '<br>' + 
+                    ' Year: ' +  x + '<br>$' +
+                    formatCurrency(y) +
+                    '</div>';
+            return content;
+        }
+    });
+
+    var legend = new Rickshaw.Graph.Legend.CustomLegend( {
+        graph: graph,
+        element: document.getElementById('chart-legend')
+    } );
+
+    var shelving = new Rickshaw.Graph.Behavior.Series.Toggle( {
+        graph: graph,
+        legend: legend
+    } );
+
+    
+    $('.swatch').each(function(index) {
+        var swatch_color = $(this).css('background-color');
+        $(this).parent('li').css('background-color', swatch_color);
+        $('.swatch').hide();
+    });
+```
+
+- CustomHoverDetail removes functionality from series with the name 'baseline'
+- The default Toggle behavior has been modified in es-rickshaw so clicking on a
+  "li" in the legend greys out that data series. Clicking again will display that
+  series.
+- The 'multi' renderer has been modified to reorder graph series based on
+  whether they are greyed out or not, so that 'active' series are not covered
+  by greyed out ones.
+- CustomHoverDetail, CustomLegend, and Toggle together change the default
+  behavior of the rickshaw graph, and integrates it with the es-site codebase.
+
+### Testing and Building Code
+
+make dev concatenates src js code into rickshaw.min.js but does not 'lint' or
+minify it. The rational behind this is so that you do the following:
+
+```
+    make dev && cp rickshaw.min.js ~/es-site/es/es/static/lib/rickshaw/rickshaw.min.js
+```
+This makes it possible to debug with un-minifed code without changing anything
+on the es-site side. Before committing code to es-site be sure to run the
+default make command which will lint and minify the javascript.
+
+

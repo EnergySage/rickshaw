@@ -37,7 +37,10 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
 
         var label = document.createElement('span');
         label.className = 'label';
-        label.innerHTML = Rickshaw.pmt2name[series.name]; //Might want to change this
+        /*
+         *  Converts series code name like pur into a human readable value like Purchase
+         */
+        label.innerHTML = Rickshaw.pmt2name[series.name];
         //label.style.backgroundColor = series.color;
 
         line.appendChild(label);
@@ -61,6 +64,9 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
     };
 
     series.forEach( function(s) {
+        /*
+         * Hides baseline line from the legend
+         */
         if (s.name != 'baseline') {
             self.addLine(s); 
         }

@@ -41,6 +41,21 @@ var Rickshaw = {
         'zdp': '$0-down PPA',
         'ppp': 'Prepaid PPA',
         'cp': 'Custom PPA'
+    },
+
+    pmt2color: {
+        'pur': '#822a85',
+        'zdl': '#ca6f20',
+        'zdp': '#ca6f20',
+        'zd':  '#ca6f20',
+        'ppl': '#00a0df',
+        'ppp': '#00a0df',
+        'pp':  '#00a0df',
+        'cl': '#61a543',
+        'cp': '#61a543',
+        'c':  '#61a543',
+        'pln': '#275ba9',
+        'baseline': '#264DEB'
     }
 
 };

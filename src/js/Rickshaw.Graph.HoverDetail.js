@@ -236,7 +236,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			'mousemove',
 			function(e) {
 				this.visible = true;
-				this.update(e);
+				this.update(e); //This is a call to Rickshaw.Graph.HoverDetail.CustomDetail.update(e)
 			}.bind(this),
 			false
 		);

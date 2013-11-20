@@ -50,7 +50,8 @@ Rickshaw.Graph.Renderer.LinePlot = Rickshaw.Class.create( Rickshaw.Graph.Rendere
 
 			Array.prototype.forEach.call(nodes[0], function(n) {
 				if (!n) return;
-				n.setAttribute('data-color', series.color);
+                //if (series.disabled) return;
+                n.setAttribute('data-color', series.color);
 				n.setAttribute('fill', 'white');
 				n.setAttribute('stroke', series.color);
 				n.setAttribute('stroke-width', this.strokeWidth);
@@ -71,7 +72,7 @@ Rickshaw.Graph.Renderer.LinePlot = Rickshaw.Class.create( Rickshaw.Graph.Rendere
 
 		var i = 0;
 		graph.series.forEach(function(series) {
-			if (series.disabled) return;
+			if (series.disabled) return; 
 			series.path = nodes[0][i++];
 			this._styleSeries(series);
 		}, this);

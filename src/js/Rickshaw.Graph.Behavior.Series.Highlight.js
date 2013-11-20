@@ -16,7 +16,6 @@ Rickshaw.Graph.Behavior.Series.Highlight = function(args) {
 
 	this.addHighlightEvents = function (l) {
         
-        /*
 		l.element.addEventListener( 'mouseover', function(e) {
 
 			if (activeLine) return;
@@ -70,11 +69,12 @@ Rickshaw.Graph.Behavior.Series.Highlight = function(args) {
 			self.graph.update();
 
 		}, false );
-        */
 
 	};
 
 	if (this.legend) {
+		//Removing Highlight Events from graph, instead greyed out effect is done via modified
+		//Rickshaw.Graph.Behavior.Series.Toggle behavior
         /*
 		this.legend.lines.forEach( function(l) {
 			self.addHighlightEvents(l);

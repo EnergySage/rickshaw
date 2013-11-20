@@ -53,7 +53,24 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 
 		var renderGroups = {};
 
-		graph.series.forEach( function(series) {
+		//Re-order series with the custom_hidden attribute to the top of the list
+		//Lower indexes of the array are drawn first, i.e. indexes at the end of
+		//the array end up on-top
+		var series = graph.series.slice();
+		var show_series = [];
+		var hidden_series = [];
+		for (var i=0; i<series.length; i++) {
+			if (series[i].custom_hidden) {
+				hidden_series.push(series[i]);
+			} else {
+				show_series.push(series[i]);
+			}
+		}
+		series = hidden_series.concat(show_series);
+		series.active = function() { return series; };
+
+		series.forEach( function( series ) {
+		//graph.series.forEach( function(series) {
 
 			if (series.disabled) return;
 
@@ -87,6 +104,8 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 		return groups;
 	},
 
+	//A group is an object containing a series and a renderer, so for example we would have
+	//two groups, one for CustomLine ('basline'), and another for Line ('pln', 'cp', ect)
 	_stack: function(groups) {
 
 		groups.forEach( function(group) {
@@ -136,6 +155,7 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 			group.renderer.render({ series: series, vis: group.vis });
 			series.forEach(function(s) { s.stack = s._stack || s.stack || s.data; });
 		});
+
 	}
 
 } );

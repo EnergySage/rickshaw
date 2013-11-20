@@ -41,6 +41,21 @@ var Rickshaw = {
         'zdp': '$0-down PPA',
         'ppp': 'Prepaid PPA',
         'cp': 'Custom PPA'
+    },
+
+    pmt2color: {
+        'pur': '#822a85',
+        'zdl': '#ca6f20',
+        'zdp': '#ca6f20',
+        'zd':  '#ca6f20',
+        'ppl': '#00a0df',
+        'ppp': '#00a0df',
+        'pp':  '#00a0df',
+        'cl': '#61a543',
+        'cp': '#61a543',
+        'c':  '#61a543',
+        'pln': '#275ba9',
+        'baseline': '#264DEB'
     }
 
 };
@@ -1768,7 +1783,7 @@ Rickshaw.Graph.Behavior.Series.Highlight = function(args) {
 	};
 
 	this.addHighlightEvents = function (l) {
-
+        
 		l.element.addEventListener( 'mouseover', function(e) {
 
 			if (activeLine) return;
@@ -1822,12 +1837,17 @@ Rickshaw.Graph.Behavior.Series.Highlight = function(args) {
 			self.graph.update();
 
 		}, false );
+
 	};
 
 	if (this.legend) {
+		//Removing Highlight Events from graph, instead greyed out effect is done via modified
+		//Rickshaw.Graph.Behavior.Series.Toggle behavior
+        /*
 		this.legend.lines.forEach( function(l) {
 			self.addHighlightEvents(l);
 		} );
+        */
 	}
 
 };
@@ -1849,10 +1869,11 @@ Rickshaw.Graph.Behavior.Series.Order = function(args) {
 	}
 
 	$(function() {
-		$(self.legend.list).sortable( { 
+		$(self.legend.list).sortable( {
 			containment: 'parent',
 			tolerance: 'pointer',
 			update: function( event, ui ) {
+
 				var series = [];
 				$(self.legend.list).find('li').each( function(index, item) {
 					if (!item.series) return;
@@ -1879,122 +1900,165 @@ Rickshaw.namespace('Rickshaw.Graph.Behavior.Series.Toggle');
 
 Rickshaw.Graph.Behavior.Series.Toggle = function(args) {
 
-	this.graph = args.graph;
-	this.legend = args.legend;
+    this.graph = args.graph;
+    this.legend = args.legend;
 
-	var self = this;
+    var self = this;
 
-	this.addAnchor = function(line) {
-		var anchor = document.createElement('a');
-		anchor.innerHTML = '&#10004;';
-		anchor.classList.add('action');
-		line.element.insertBefore(anchor, line.element.firstChild);
+    var colorSafe = {};
+    var activeLine = null;
 
-		anchor.onclick = function(e) {
-			if (line.series.disabled) {
-				line.series.enable();
-				line.element.classList.remove('disabled');
-			} else { 
-				if (this.graph.series.filter(function(s) { return !s.disabled }).length <= 1) return;
-				line.series.disable();
-				line.element.classList.add('disabled');
-			}
+    //Adding greyed out functionality that is by default found in Rickshaw.Graph.Behavior.Series.Highlight
+    var disabledColor = args.disabledColor || function(seriesColor) {
+        return d3.interpolateRgb(seriesColor, d3.rgb('#d8d8d8'))(0.8).toString();
+    };
 
-		}.bind(this);
-		
-                var label = line.element.getElementsByTagName('span')[0];
-                label.onclick = function(e){
+    //addLegendDynamic enables checkbox like behavior for an entire legend "li"
+    this.addLegendDynamics = function(l) {
+        //l.element.classList.add('action');
+        l.element.onclick = function(e) {
+            //if (l.series.disabled) {
+            if (l.series.custom_hidden) {
+                l.series.enable();
+                //l.series.visible = true;
+                l.element.classList.remove('disabled');
 
-                        var disableAllOtherLines = line.series.disabled;
-                        if ( ! disableAllOtherLines ) {
-                                for ( var i = 0; i < self.legend.lines.length; i++ ) {
-                                        var l = self.legend.lines[i];
-                                        if ( line.series === l.series ) {
-                                                // noop
-                                        } else if ( l.series.disabled ) {
-                                                // noop
-                                        } else {
-                                                disableAllOtherLines = true;
-                                                break;
-                                        }
-                                }
+            } else {
+                if (self.graph.series.filter(function(s) { return !s.custom_hidden }).length <= 1) return;
+                l.series.disable();
+                //l.series.visible = false;
+                l.element.classList.add('disabled');
+            }
+        };  
+    };
+
+    this.addAnchor = function(line) {
+        var anchor = document.createElement('a');
+        anchor.innerHTML = '&#10004;';
+        anchor.classList.add('action');
+        line.element.insertBefore(anchor, line.element.firstChild);
+
+        anchor.onclick = function(e) {
+            if (line.series.disabled) {
+                line.series.enable();
+                line.element.classList.remove('disabled');
+            } else { 
+                if (this.graph.series.filter(function(s) { return !s.disabled }).length <= 1) return;
+                line.series.disable();
+                line.element.classList.add('disabled');
+            }
+
+        }.bind(this);
+
+
+        var label = line.element.getElementsByTagName('span')[0];
+        label.onclick = function(e){
+            var disableAllOtherLines = line.series.disabled;
+            
+            if ( ! disableAllOtherLines ) {
+                    for ( var i = 0; i < self.legend.lines.length; i++ ) {
+                            var l = self.legend.lines[i];
+                            if ( line.series === l.series ) {
+                                    // noop
+                            } else if ( l.series.disabled ) {
+                                    // noop
+                            } else {
+                                    disableAllOtherLines = true;
+                                    break;
+                            }
+                    }
+            }
+
+            // show all or none
+            if ( disableAllOtherLines ) {
+                // these must happen first or else we try ( and probably fail ) to make a no line graph
+
+                line.series.enable();
+                line.element.classList.remove('disabled');
+
+                self.legend.lines.forEach(function(l){
+                    if ( line.series === l.series ) {
+                            // noop
+                    } else {
+                            l.series.disable();
+                            l.element.classList.add('disabled');
+                    }
+                });
+            } else {
+                self.legend.lines.forEach(function(l){
+                        l.series.enable();
+                        l.element.classList.remove('disabled');
+                });
+            }
+
+        };
+
+    };
+
+    if (this.legend) {
+
+        if (typeof $ != 'undefined' && $(this.legend.list).sortable) {
+
+            $(this.legend.list).sortable( {
+                start: function(event, ui) {
+                    ui.item.bind('no.onclick',
+                        function(event) {
+                            event.preventDefault();
                         }
+                    );
+                },
+                stop: function(event, ui) {
+                    setTimeout(function(){
+                        ui.item.unbind('no.onclick');
+                    }, 250);
+                }
+            });
+        }
 
-                        // show all or none
-                        if ( disableAllOtherLines ) {
+        this.legend.lines.forEach( function(l) {
+            //self.addAnchor(l);
+            /*
+             * LegendDynamics takes checkbox functionality
+             * from addAnchor and applies it to the entire legend button ("li")
+             */
+            self.addLegendDynamics(l);
+        } );
+    }
 
-                                // these must happen first or else we try ( and probably fail ) to make a no line graph
-                                line.series.enable();
-                                line.element.classList.remove('disabled');
+    this._addBehavior = function() {
 
-                                self.legend.lines.forEach(function(l){
-                                        if ( line.series === l.series ) {
-                                                // noop
-                                        } else {
-                                                l.series.disable();
-                                                l.element.classList.add('disabled');
-                                        }
-                                });
+        this.graph.series.forEach( function(s) {
 
-                        } else {
+            s.disable = function() {
+                //s.disabled = true;
+                s.custom_hidden = true;
+                //s.visible = true;
 
-                                self.legend.lines.forEach(function(l){
-                                        l.series.enable();
-                                        l.element.classList.remove('disabled');
-                                });
+                colorSafe[s.name] = colorSafe[s.name] || s.color;
+                s.color = disabledColor(s.color);
 
-                        }
+                if (self.graph.series.length <= 1){
+                    throw('only one series left');
+                }
+                
+                self.graph.update();
+            };
 
-                };
+            s.enable = function() {
+                //s.disabled = false;
+                s.custom_hidden = false;
+                //s.visible = false;
 
-	};
+                if (colorSafe[s.name]) {
+                    s.color = colorSafe[s.name];
+                }
 
-	if (this.legend) {
+                self.graph.update();
+            };
+        } );
 
-		if (typeof $ != 'undefined' && $(this.legend.list).sortable) {
-
-			$(this.legend.list).sortable( {
-				start: function(event, ui) {
-					ui.item.bind('no.onclick',
-						function(event) {
-							event.preventDefault();
-						}
-					);
-				},
-				stop: function(event, ui) {
-					setTimeout(function(){
-						ui.item.unbind('no.onclick');
-					}, 250);
-				}
-			});
-		}
-
-		this.legend.lines.forEach( function(l) {
-			self.addAnchor(l);
-		} );
-	}
-
-	this._addBehavior = function() {
-
-		this.graph.series.forEach( function(s) {
-			
-			s.disable = function() {
-
-				if (self.graph.series.length <= 1) {
-					throw('only one series left');
-				}
-				
-				s.disabled = true;
-				self.graph.update();
-			};
-
-			s.enable = function() {
-				s.disabled = false;
-				self.graph.update();
-			};
-		} );
-	};
-	this._addBehavior();
+    };
+    this._addBehavior();
 
 	this.updateBehaviour = function () { this._addBehavior() };
 
@@ -2237,7 +2301,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 			'mousemove',
 			function(e) {
 				this.visible = true;
-				this.update(e);
+				this.update(e); //This is a call to Rickshaw.Graph.HoverDetail.CustomDetail.update(e)
 			}.bind(this),
 			false
 		);
@@ -2284,6 +2348,13 @@ Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDe
         this.graph.series.active().forEach( function(series) {
 
             var data = this.graph.stackedData[j++];
+
+            if (series.custom_hidden || series.name == 'baseline')
+                /*
+                 * This will remove hidden series and baseline series data points from being computed
+                 * meaning the highlight "snap-to" line functinality will ignore these series
+                 */
+                return;
 
             if (!data.length)
                 return;
@@ -2340,7 +2411,7 @@ Rickshaw.Graph.CustomHoverDetail = Rickshaw.Class.create( Rickshaw.Graph.HoverDe
 
         }, this );
 
-        if (!nearestPoint || nearestPoint.name=='baseline')
+        if (!nearestPoint)
             return;
 
         nearestPoint.active = true;
@@ -2480,7 +2551,10 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
 
         var label = document.createElement('span');
         label.className = 'label';
-        label.innerHTML = Rickshaw.pmt2name[series.name]; //Might want to change this
+        /*
+         *  Converts series code name like pur into a human readable value like Purchase
+         */
+        label.innerHTML = Rickshaw.pmt2name[series.name];
         //label.style.backgroundColor = series.color;
 
         line.appendChild(label);
@@ -2504,6 +2578,9 @@ Rickshaw.Graph.Legend.CustomLegend = function(args) {
     };
 
     series.forEach( function(s) {
+        /*
+         * Hides baseline line from the legend
+         */
         if (s.name != 'baseline') {
             self.addLine(s); 
         }
@@ -3159,7 +3236,24 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 
 		var renderGroups = {};
 
-		graph.series.forEach( function(series) {
+		//Re-order series with the custom_hidden attribute to the top of the list
+		//Lower indexes of the array are drawn first, i.e. indexes at the end of
+		//the array end up on-top
+		var series = graph.series.slice();
+		var show_series = [];
+		var hidden_series = [];
+		for (var i=0; i<series.length; i++) {
+			if (series[i].custom_hidden) {
+				hidden_series.push(series[i]);
+			} else {
+				show_series.push(series[i]);
+			}
+		}
+		series = hidden_series.concat(show_series);
+		series.active = function() { return series; };
+
+		series.forEach( function( series ) {
+		//graph.series.forEach( function(series) {
 
 			if (series.disabled) return;
 
@@ -3193,6 +3287,8 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 		return groups;
 	},
 
+	//A group is an object containing a series and a renderer, so for example we would have
+	//two groups, one for CustomLine ('basline'), and another for Line ('pln', 'cp', ect)
 	_stack: function(groups) {
 
 		groups.forEach( function(group) {
@@ -3242,6 +3338,7 @@ Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, 
 			group.renderer.render({ series: series, vis: group.vis });
 			series.forEach(function(s) { s.stack = s._stack || s.stack || s.data; });
 		});
+
 	}
 
 } );
@@ -3297,7 +3394,8 @@ Rickshaw.Graph.Renderer.LinePlot = Rickshaw.Class.create( Rickshaw.Graph.Rendere
 
 			Array.prototype.forEach.call(nodes[0], function(n) {
 				if (!n) return;
-				n.setAttribute('data-color', series.color);
+                //if (series.disabled) return;
+                n.setAttribute('data-color', series.color);
 				n.setAttribute('fill', 'white');
 				n.setAttribute('stroke', series.color);
 				n.setAttribute('stroke-width', this.strokeWidth);
@@ -3318,7 +3416,7 @@ Rickshaw.Graph.Renderer.LinePlot = Rickshaw.Class.create( Rickshaw.Graph.Rendere
 
 		var i = 0;
 		graph.series.forEach(function(series) {
-			if (series.disabled) return;
+			if (series.disabled) return; 
 			series.path = nodes[0][i++];
 			this._styleSeries(series);
 		}, this);
