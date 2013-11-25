@@ -8,7 +8,8 @@ Rickshaw.Graph.Renderer.CustomLine = Rickshaw.Class.create( Rickshaw.Graph.Rende
         return Rickshaw.extend( $super(), {
             fill: false,
             stroke: true,
-            unstack: true
+            unstack: true,
+            strokeWidth: 3
         } );
     },
 
@@ -30,7 +31,7 @@ Rickshaw.Graph.Renderer.CustomLine = Rickshaw.Class.create( Rickshaw.Graph.Rende
 
         series.path.setAttribute('fill', fill);
         series.path.setAttribute('stroke', stroke);
-        series.path.setAttribute('stroke-width', this.baselineStrokeWidth);
+        series.path.setAttribute('stroke-width', this.strokeWidth);
         series.path.setAttribute('class', series.className);
     },
 });

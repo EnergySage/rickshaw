@@ -2879,7 +2879,8 @@ Rickshaw.Graph.Renderer.CustomLine = Rickshaw.Class.create( Rickshaw.Graph.Rende
         return Rickshaw.extend( $super(), {
             fill: false,
             stroke: true,
-            unstack: true
+            unstack: true,
+            strokeWidth: 3
         } );
     },
 
@@ -2901,7 +2902,10 @@ Rickshaw.Graph.Renderer.CustomLine = Rickshaw.Class.create( Rickshaw.Graph.Rende
 
         series.path.setAttribute('fill', fill);
         series.path.setAttribute('stroke', stroke);
-        series.path.setAttribute('stroke-width', this.baselineStrokeWidth);
+
+        console.log('this.strokeWidth ' + this.strokeWidth);
+
+        series.path.setAttribute('stroke-width', this.strokeWidth);
         series.path.setAttribute('class', series.className);
     },
 });
@@ -3196,161 +3200,166 @@ Rickshaw.namespace('Rickshaw.Graph.Renderer.Multi');
 
 Rickshaw.Graph.Renderer.Multi = Rickshaw.Class.create( Rickshaw.Graph.Renderer, {
 
-	name: 'multi',
+    name: 'multi',
 
-	initialize: function($super, args) {
+    initialize: function($super, args) {
 
-		$super(args);
-	},
+        $super(args);
+    },
 
-	defaults: function($super) {
+    defaults: function($super) {
 
-		return Rickshaw.extend( $super(), {
-			unstack: true,
-			fill: false,
-			stroke: true 
-		} );
-	},
+        return Rickshaw.extend( $super(), {
+            unstack: true,
+            fill: false,
+            stroke: true 
+        } );
+    },
 
-	domain: function($super) {
+    domain: function($super) {
 
-		this.graph.stackData();
+        this.graph.stackData();
 
-		var domains = [];
+        var domains = [];
 
-		var groups = this._groups();
-		this._stack(groups);
+        var groups = this._groups();
+        this._stack(groups);
 
-		groups.forEach( function(group) {
+        groups.forEach( function(group) {
 
-			var data = group.series
-				.filter( function(s) { return !s.disabled } )
-				.map( function(s) { return s.stack });
+            var data = group.series
+                .filter( function(s) { return !s.disabled } )
+                .map( function(s) { return s.stack });
 
-			if (!data.length) return;
+            if (!data.length) return;
 
-			var domain = $super(data);
-			domains.push(domain);
-		});
+            var domain = $super(data);
+            domains.push(domain);
+        });
 
-		var xMin = d3.min(domains.map( function(d) { return d.x[0] } ));
-		var xMax = d3.max(domains.map( function(d) { return d.x[1] } ));
-		var yMin = d3.min(domains.map( function(d) { return d.y[0] } ));
-		var yMax = d3.max(domains.map( function(d) { return d.y[1] } ));
+        var xMin = d3.min(domains.map( function(d) { return d.x[0] } ));
+        var xMax = d3.max(domains.map( function(d) { return d.x[1] } ));
+        var yMin = d3.min(domains.map( function(d) { return d.y[0] } ));
+        var yMax = d3.max(domains.map( function(d) { return d.y[1] } ));
 
-		return { x: [xMin, xMax], y: [yMin, yMax] };
-	},
+        return { x: [xMin, xMax], y: [yMin, yMax] };
+    },
 
-	_groups: function() {
+    _groups: function() {
 
-		var graph = this.graph;
+        var graph = this.graph;
 
-		var renderGroups = {};
+        var renderGroups = {};
 
-		//Re-order series with the custom_hidden attribute to the top of the list
-		//Lower indexes of the array are drawn first, i.e. indexes at the end of
-		//the array end up on-top
-		var series = graph.series.slice();
-		var show_series = [];
-		var hidden_series = [];
-		for (var i=0; i<series.length; i++) {
-			if (series[i].custom_hidden) {
-				hidden_series.push(series[i]);
-			} else {
-				show_series.push(series[i]);
-			}
-		}
-		series = hidden_series.concat(show_series);
-		series.active = function() { return series; };
+        //Re-order series with the custom_hidden attribute to the top of the list
+        //Lower indexes of the array are drawn first, i.e. indexes at the end of
+        //the array end up on-top
+        var series = graph.series.slice();
+        var show_series = [];
+        var hidden_series = [];
+        var baseline = [];
+        for (var i=0; i<series.length; i++) {
+            if (series[i].custom_hidden) {
+                hidden_series.push(series[i]);
+            } else {
+                if (series[i].name == 'baseline') {
+                    baseline.push(series[i]);
+                } else {
+                    show_series.push(series[i]);
+                }
+            }
+        }
+        series = baseline.concat(hidden_series.concat(show_series));
+        series.active = function() { return series; };
 
-		series.forEach( function( series ) {
-		//graph.series.forEach( function(series) {
+        series.forEach( function( series ) {
+        //graph.series.forEach( function(series) {
 
-			if (series.disabled) return;
+            if (series.disabled) return;
 
-			if (!renderGroups[series.renderer]) {
+            if (!renderGroups[series.renderer]) {
 
-				var ns = "http://www.w3.org/2000/svg";
-				var vis = document.createElementNS(ns, 'g');
+                var ns = "http://www.w3.org/2000/svg";
+                var vis = document.createElementNS(ns, 'g');
 
-				graph.vis[0][0].appendChild(vis);
+                graph.vis[0][0].appendChild(vis);
 
-				var renderer = graph._renderers[series.renderer];
+                var renderer = graph._renderers[series.renderer];
 
-				renderGroups[series.renderer] = {
-					renderer: renderer,
-					series: [],
-					vis: d3.select(vis)
-				};
-			}
-				
-			renderGroups[series.renderer].series.push(series);
+                renderGroups[series.renderer] = {
+                    renderer: renderer,
+                    series: [],
+                    vis: d3.select(vis)
+                };
+            }
+                
+            renderGroups[series.renderer].series.push(series);
 
-		}, this);
+        }, this);
 
-		var groups = [];
+        var groups = [];
 
-		Object.keys(renderGroups).forEach( function(key) {
-			var group = renderGroups[key];
-			groups.push(group);
-		});
+        Object.keys(renderGroups).forEach( function(key) {
+            var group = renderGroups[key];
+            groups.push(group);
+        });
 
-		return groups;
-	},
+        return groups;
+    },
 
-	//A group is an object containing a series and a renderer, so for example we would have
-	//two groups, one for CustomLine ('basline'), and another for Line ('pln', 'cp', ect)
-	_stack: function(groups) {
+    //A group is an object containing a series and a renderer, so for example we would have
+    //two groups, one for CustomLine ('basline'), and another for Line ('pln', 'cp', ect)
+    _stack: function(groups) {
 
-		groups.forEach( function(group) {
+        groups.forEach( function(group) {
 
-			var series = group.series
-				.filter( function(series) { return !series.disabled } );
+            var series = group.series
+                .filter( function(series) { return !series.disabled } );
 
-			var data = series
-				.map( function(series) { return series.stack } );
+            var data = series
+                .map( function(series) { return series.stack } );
 
-			if (!group.renderer.unstack) {
+            if (!group.renderer.unstack) {
 
-				var layout = d3.layout.stack();
-				var stackedData = Rickshaw.clone(layout(data));
+                var layout = d3.layout.stack();
+                var stackedData = Rickshaw.clone(layout(data));
 
-				series.forEach( function(series, index) {
-					series._stack = Rickshaw.clone(stackedData[index]);
-				});
-			}
+                series.forEach( function(series, index) {
+                    series._stack = Rickshaw.clone(stackedData[index]);
+                });
+            }
 
-		}, this );
+        }, this );
 
-		return groups;
+        return groups;
 
-	},
+    },
 
-	render: function() {
+    render: function() {
 
-		this.graph.series.forEach( function(series) {
-			if (!series.renderer) {
-				throw new Error("Each series needs a renderer for graph 'multi' renderer");
-			}
-		});
+        this.graph.series.forEach( function(series) {
+            if (!series.renderer) {
+                throw new Error("Each series needs a renderer for graph 'multi' renderer");
+            }
+        });
 
-		this.graph.vis.selectAll('*').remove();
+        this.graph.vis.selectAll('*').remove();
 
-		var groups = this._groups();
-		groups = this._stack(groups);
+        var groups = this._groups();
+        groups = this._stack(groups);
 
-		groups.forEach( function(group) {
+        groups.forEach( function(group) {
 
-			var series = group.series
-				.filter( function(series) { return !series.disabled } );
+            var series = group.series
+                .filter( function(series) { return !series.disabled } );
 
-			series.active = function() { return series };
+            series.active = function() { return series };
 
-			group.renderer.render({ series: series, vis: group.vis });
-			series.forEach(function(s) { s.stack = s._stack || s.stack || s.data; });
-		});
+            group.renderer.render({ series: series, vis: group.vis });
+            series.forEach(function(s) { s.stack = s._stack || s.stack || s.data; });
+        });
 
-	}
+    }
 
 } );
 Rickshaw.namespace('Rickshaw.Graph.Renderer.LinePlot');
