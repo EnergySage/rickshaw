@@ -2267,7 +2267,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var alignables = [xLabel, item];
 		alignables.forEach(function(el) {
 			el.classList.add('left');
-            el.classList.add(series.name);
+            el.classList.add(series.name.replace(/\s/g , "-"));
 		});
 
 		this.show();
@@ -2506,9 +2506,20 @@ Rickshaw.Graph.Legend = function(args) {
 		self.lines.push(_line);
 	};
 
+    series.forEach( function(s) {
+        /*
+         * Hides baseline line from the legend
+         */
+        if (s.name != 'baseline') {
+            self.addLine(s); 
+        }
+    } );
+
+    /*
 	series.forEach( function(s) {
 		self.addLine(s);
 	} );
+    */
 
 	graph.onUpdate( function() {} );
 };

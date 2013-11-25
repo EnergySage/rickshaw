@@ -202,7 +202,7 @@ Rickshaw.Graph.HoverDetail = Rickshaw.Class.create({
 		var alignables = [xLabel, item];
 		alignables.forEach(function(el) {
 			el.classList.add('left');
-            el.classList.add(series.name);
+            el.classList.add(series.name.replace(/\s/g , "-"));
 		});
 
 		this.show();

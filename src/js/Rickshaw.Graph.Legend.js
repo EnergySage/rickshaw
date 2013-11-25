@@ -58,9 +58,20 @@ Rickshaw.Graph.Legend = function(args) {
 		self.lines.push(_line);
 	};
 
+    series.forEach( function(s) {
+        /*
+         * Hides baseline line from the legend
+         */
+        if (s.name != 'baseline') {
+            self.addLine(s); 
+        }
+    } );
+
+    /*
 	series.forEach( function(s) {
 		self.addLine(s);
 	} );
+    */
 
 	graph.onUpdate( function() {} );
 };
