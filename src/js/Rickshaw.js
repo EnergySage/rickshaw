@@ -33,7 +33,7 @@ var Rickshaw = {
 	},
 
     pmt2name: {
-        'pur': 'Purchase',
+        'pur': 'Cash Purchase',
         'pln': 'Purchase with Loan',
         'zdl': '$0-down Lease',
         'ppl': 'Prepaid Lease',
