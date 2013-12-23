@@ -33,7 +33,7 @@ var Rickshaw = {
 	},
 
     pmt2name: {
-        'pur': 'Purchase',
+        'pur': 'Cash Purchase',
         'pln': 'Purchase with Loan',
         'zdl': '$0-down Lease',
         'ppl': 'Prepaid Lease',
@@ -2902,9 +2902,6 @@ Rickshaw.Graph.Renderer.CustomLine = Rickshaw.Class.create( Rickshaw.Graph.Rende
 
         series.path.setAttribute('fill', fill);
         series.path.setAttribute('stroke', stroke);
-
-        console.log('this.strokeWidth ' + this.strokeWidth);
-
         series.path.setAttribute('stroke-width', this.strokeWidth);
         series.path.setAttribute('class', series.className);
     },
