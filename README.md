@@ -2,6 +2,10 @@
 
 Rickshaw is a JavaScript toolkit for creating interactive time series graphs, developed at [Shutterstock](http://www.shutterstock.com)
 
+## ES Rickshaw
+
+Changes have been made in es-site/es/es/static/lib/rickshaw/rickshaw.js that are not reflected here.
+
 ## Getting Started
 
 Getting started with a simple graph is straightforward.  Here's the gist:
